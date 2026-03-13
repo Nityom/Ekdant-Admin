@@ -3,7 +3,10 @@ import { ConvexHttpClient } from "convex/browser";
 import { api } from "@/convex/_generated/api";
 import { Patient } from "@/types/patient";
 
-const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL || "https://laudable-pony-598.convex.cloud";
+const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+if (!convexUrl) {
+    throw new Error("Missing NEXT_PUBLIC_CONVEX_URL");
+}
 const convex = new ConvexHttpClient(convexUrl);
 
 const formatPatient = (p: any): Patient => ({

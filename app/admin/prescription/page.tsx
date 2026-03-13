@@ -15,8 +15,13 @@ import { ConvexHttpClient } from 'convex/browser';
 // @ts-ignore
 import { api } from '@/convex/_generated/api';
 
+const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+if (!convexUrl) {
+  throw new Error('Missing NEXT_PUBLIC_CONVEX_URL');
+}
+
 const convexClient = new ConvexHttpClient(
-  process.env.NEXT_PUBLIC_CONVEX_URL || 'https://laudable-pony-598.convex.cloud'
+  convexUrl
 );
 
 interface MedicineEntry {
@@ -265,7 +270,7 @@ const PrescriptionPage = () => {
           try {
             const latestRx = await convexClient.query(api.prescriptions.getLatestByPhone, { phone_number: phoneNumber });
             if (latestRx && latestRx.medical_history) {
-              setFormData(prevData => ({ ...prevData, mh: latestRx.medical_history || '' }));
+              setFormData(prevData => ({ ...prevData, mh: latestRx.medical_history ?? '' }));
             }
           } catch (rxError) {
             console.error('Error fetching latest prescription for M/H prefill:', rxError);
