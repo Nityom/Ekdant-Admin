@@ -1,6 +1,6 @@
 ﻿// app/api/generate-prescription/route.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { PDFDocument, StandardFonts, rgb, PDFFont, PDFPage } from 'pdf-lib';
+import { PDFDocument, StandardFonts, rgb, PDFFont, PDFPage, PDFImage } from 'pdf-lib';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -123,9 +123,18 @@ export async function POST(req: NextRequest) {
     const regularFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
     const boldFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-    let signImage = null;
+    let signImage: PDFImage | null = null;
     if (signImageBytes) {
-      signImage = await pdfDoc.embedPng(signImageBytes);
+      // sign.jpeg is expected, but fallback to PNG for compatibility.
+      try {
+        signImage = await pdfDoc.embedJpg(signImageBytes);
+      } catch {
+        try {
+          signImage = await pdfDoc.embedPng(signImageBytes);
+        } catch {
+          signImage = null;
+        }
+      }
     }
 
     const page = pdfDoc.addPage([PAGE_W, PAGE_H]);
