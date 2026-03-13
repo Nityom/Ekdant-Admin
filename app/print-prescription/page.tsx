@@ -148,6 +148,53 @@ function PrintPrescriptionContent() {
             width: 100%;
             margin: 0;
             padding: 0;
+            min-height: auto !important;
+            display: block !important;
+            font-size: 10pt;
+            line-height: 1.3;
+          }
+
+          .patient-grid {
+            margin-bottom: 3px;
+            padding: 2px 0;
+          }
+
+          .patient-grid .row {
+            line-height: 1.3;
+          }
+
+          .sec-heading {
+            font-size: 10pt;
+            margin: 3px 0 1px 0;
+          }
+
+          .sec-body {
+            font-size: 9.5pt;
+            line-height: 1.25;
+            margin-bottom: 0;
+          }
+
+          .med-table th,
+          .med-table td {
+            padding: 2px 6px;
+            font-size: 9pt;
+          }
+
+          .sig-row {
+            position: fixed;
+            bottom: 1.2cm;
+            right: 0;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+
+          .sig-block {
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
+
+          .print-content {
+            padding-bottom: 3.5cm !important;
           }
         }
 
@@ -255,6 +302,7 @@ function PrintPrescriptionContent() {
           margin-top: auto;
           padding-top: 20px;
           font-size: 10pt;
+          padding-right: 0;
         }
 
         .sig-block {

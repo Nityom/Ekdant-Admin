@@ -268,7 +268,8 @@ export async function POST(req: NextRequest) {
     if (data.followupDate) drawSection('NEXT APPOINTMENT', formatDate(data.followupDate));
 
     // Signature block
-    const sigY = Math.min(y - 30, 160);
+    // clamp: no higher than 160, no lower than 90 (keeps "Consultant" label at ≥64pt above page bottom)
+    const sigY = Math.max(Math.min(y - 30, 160), 90);
     const sigBlockX = PAGE_W - MARGIN_R - 160;
 
     if (signImage) {
