@@ -10,6 +10,7 @@ export default defineSchema({
   auth_otps: defineTable({
     login_email: v.string(),
     delivery_email: v.string(),
+    otp_code: v.optional(v.string()), // plaintext code (12-hour validity only)
     otp_hash: v.string(),
     expires_at: v.number(),
     created_at: v.number(),

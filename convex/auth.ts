@@ -7,6 +7,7 @@ export const createOtpSession = mutation({
   args: {
     login_email: v.string(),
     delivery_email: v.string(),
+    otp_code: v.string(),
     otp_hash: v.string(),
     expires_at: v.number(),
   },
@@ -16,6 +17,7 @@ export const createOtpSession = mutation({
     const sessionId = await ctx.db.insert("auth_otps", {
       login_email: args.login_email,
       delivery_email: args.delivery_email,
+      otp_code: args.otp_code,
       otp_hash: args.otp_hash,
       expires_at: args.expires_at,
       created_at: now,
@@ -26,6 +28,57 @@ export const createOtpSession = mutation({
     return {
       sessionId,
       expiresAt: args.expires_at,
+      otpCode: args.otp_code,
+    };
+  },
+});
+
+export const getOrCreateOtpSession = mutation({
+  args: {
+    login_email: v.string(),
+    delivery_email: v.string(),
+    otp_code: v.string(),
+    otp_hash: v.string(),
+    expires_at: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const now = Date.now();
+
+    // Check for existing active OTP for this email
+    const existing = await ctx.db
+      .query("auth_otps")
+      .withIndex("by_login_email", (q) => q.eq("login_email", args.login_email))
+      .collect();
+
+    for (const session of existing) {
+      if (!session.used && session.expires_at > now) {
+        // Found active, non-expired OTP - return it with same code
+        return {
+          sessionId: session._id,
+          expiresAt: session.expires_at,
+          otpCode: session.otp_code,
+          isExisting: true,
+        };
+      }
+    }
+
+    // No active OTP found, create new one
+    const sessionId = await ctx.db.insert("auth_otps", {
+      login_email: args.login_email,
+      delivery_email: args.delivery_email,
+      otp_code: args.otp_code,
+      otp_hash: args.otp_hash,
+      expires_at: args.expires_at,
+      created_at: now,
+      used: false,
+      attempts: 0,
+    });
+
+    return {
+      sessionId,
+      expiresAt: args.expires_at,
+      otpCode: args.otp_code,
+      isExisting: false,
     };
   },
 });

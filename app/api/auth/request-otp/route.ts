@@ -174,18 +174,17 @@ export async function POST(request: NextRequest) {
     const convex = new ConvexHttpClient(resolveConvexUrl());
 
     const cleanupOtpFn = "auth:cleanupExpiredOtps" as unknown as Parameters<ConvexHttpClient["mutation"]>[0];
-    const invalidateActiveFn = "auth:invalidateActiveOtpSessions" as unknown as Parameters<ConvexHttpClient["mutation"]>[0];
-    const createOtpFn = "auth:createOtpSession" as unknown as Parameters<ConvexHttpClient["mutation"]>[0];
+    const getOrCreateOtpFn = "auth:getOrCreateOtpSession" as unknown as Parameters<ConvexHttpClient["mutation"]>[0];
 
     await convex.mutation(cleanupOtpFn, {});
-    await convex.mutation(invalidateActiveFn, { login_email: email });
 
-    const session = (await convex.mutation(createOtpFn, {
+    const session = (await convex.mutation(getOrCreateOtpFn, {
       login_email: email,
       delivery_email: deliveryEmail,
+      otp_code: otpCode,
       otp_hash: hashOtp(otpCode),
       expires_at: expiresAt,
-    })) as { sessionId: string; expiresAt: number };
+    })) as { sessionId: string; expiresAt: number; otpCode: string; isExisting: boolean };
 
     const transporter = createMailer();
     const senderEmail = process.env.SMTP_FROM || process.env.SMTP_USER || "";
@@ -194,14 +193,14 @@ export async function POST(request: NextRequest) {
       from: senderEmail,
       to: deliveryEmail,
       subject: "Ekdant Admin Login OTP",
-      text: `Your 4-digit OTP is ${otpCode}. It is valid for 12 hours.`,
-      html: buildOtpEmailHtml(otpCode, deliveryEmail),
+      text: `Your 4-digit OTP is ${session.otpCode}. It is valid for 12 hours.`,
+      html: buildOtpEmailHtml(session.otpCode, deliveryEmail),
     });
 
     return NextResponse.json({
       success: true,
       otpSessionId: session?.sessionId,
-      expiresAt,
+      expiresAt: session.expiresAt,
       deliveryEmail,
       message: `OTP sent to ${deliveryEmail}`,
     });
