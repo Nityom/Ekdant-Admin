@@ -44,28 +44,13 @@ export const getOrCreateOtpSession = mutation({
   handler: async (ctx, args) => {
     const now = Date.now();
 
-    // Check for existing active OTP for this email
+    // Mark all previous active sessions as used
     const existing = await ctx.db
       .query("auth_otps")
       .withIndex("by_login_email", (q) => q.eq("login_email", args.login_email))
       .collect();
 
     for (const session of existing) {
-      // Reuse only sessions that have otp_code and haven't been used
-      if (session.otp_code && !session.used && session.expires_at > now) {
-        // Update the hash just in case (for safety)
-        await ctx.db.patch(session._id, {
-          otp_hash: args.otp_hash,
-          expires_at: args.expires_at,
-        });
-        return {
-          sessionId: session._id,
-          expiresAt: args.expires_at,
-          otpCode: session.otp_code,
-          isExisting: true,
-        };
-      }
-      // Mark other active sessions as used (so they won't interfere)
       if (!session.used && session.expires_at > now) {
         await ctx.db.patch(session._id, {
           used: true,
@@ -74,7 +59,7 @@ export const getOrCreateOtpSession = mutation({
       }
     }
 
-    // No valid existing OTP found, create new one
+    // Always create a new OTP session
     const sessionId = await ctx.db.insert("auth_otps", {
       login_email: args.login_email,
       delivery_email: args.delivery_email,

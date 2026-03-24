@@ -205,6 +205,7 @@ export async function POST(request: NextRequest) {
       otpSessionId: session?.sessionId,
       expiresAt: session.expiresAt,
       deliveryEmail,
+      otpCode: process.env.NODE_ENV === 'development' ? finalOtpCode : undefined, // Debug only
       message: `OTP sent to ${deliveryEmail}`,
     });
   } catch (error) {
