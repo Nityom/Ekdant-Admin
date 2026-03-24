@@ -256,10 +256,7 @@ export default function ResetPassword() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.6, duration: 0.5 }}
                 >
-                  <Link href="/support" className="text-teal-600 hover:text-teal-800 transition-colors flex items-center">
-                    <CheckCircle className="h-3 w-3 mr-1" />
-                    Need help?
-                  </Link>
+                  Developed by Nityom Tikhe
                 </motion.p>
                 <motion.p
                   initial={{ opacity: 0 }}

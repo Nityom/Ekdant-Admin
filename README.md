@@ -1,25 +1,19 @@
-# Titanium Dental Clinic - Patient Management System
+# Ekdant Dental Clinic - Patient Management System
 
-A comprehensive dental clinic management system built with Next.js (Frontend) and PHP + MySQL (Backend).
+A comprehensive dental clinic management system built with Next.js and Convex.
 
 ## 🏗️ Architecture
 
 ```
 ┌─────────────────────┐
-│   Next.js Frontend  │ (Port 3000)
-│      (React UI)     │
+│    Next.js App      │ (Port 3000)
+│ (UI + API routes)   │
 └──────────┬──────────┘
-           │ HTTP/REST
+           │ Convex SDK
            │
 ┌──────────▼──────────┐
-│   PHP Backend API   │ (Port 8000)
-│   (Business Logic)  │
-└──────────┬──────────┘
-           │ PDO
-           │
-┌──────────▼──────────┐
-│   MySQL Database    │
-│   (Data Storage)    │
+│      Convex DB      │
+│   (Data + logic)    │
 └─────────────────────┘
 ```
 
@@ -30,57 +24,57 @@ A comprehensive dental clinic management system built with Next.js (Frontend) an
 - **Clinical Images**: Client-side image storage (IndexedDB/localStorage)
 - **Billing**: Generate and track bills with payment status
 - **Inventory**: Manage medicines and medical inventory
-- **Authentication**: Secure user authentication and session management
+- **Authentication**: Email OTP login with 4-digit OTP, resend support, and 12-hour OTP validity
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
 - Node.js 18+ and npm
-- PHP 7.4+
-- MySQL 5.7+
+- Convex project/deployment
+- Gmail account with App Password (for OTP email delivery via Nodemailer)
 
 ### Installation
 
-1. **Run the setup script** (Windows):
+1. **Install dependencies**:
    ```bash
-   setup.bat
+   npm install
    ```
-   This will:
-   - Create the MySQL database
-   - Import the schema
-   - Configure environment files
 
-2. **Configure database credentials**:
-   Edit `php-backend/.env` and set your MySQL password:
+2. **Configure environment variables** in `.env.local`:
    ```env
-   DB_PASSWORD=your_mysql_password
+   NEXT_PUBLIC_CONVEX_SITE_URL=https://your-deployment.convex.site
+   NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
+   CONVEX_DEPLOYMENT=dev:your-deployment
+
+   AUTH_LOGIN_EMAIL=drlalit@ekdantdentalclinics.com
+   AUTH_LOGIN_PASSWORD=Admin@123
+   AUTH_OTP_TO_EMAIL=drlalit@ekdantdentalclinics.com
+
+   SMTP_HOST=smtp.gmail.com
+   SMTP_PORT=587
+   SMTP_SECURE=false
+   SMTP_USER=your-gmail@gmail.com
+   SMTP_PASS=your-16-char-gmail-app-password
+   SMTP_FROM=your-gmail@gmail.com
    ```
 
-3. **Start both servers**:
+3. **Push Convex functions/schema**:
    ```bash
-   start-all.bat
-   ```
-   Or start them individually:
-   ```bash
-   # Terminal 1 - Backend
-   start-backend.bat
-   
-   # Terminal 2 - Frontend  
-   start-frontend.bat
+   npx convex dev --once
    ```
 
-4. **Access the application**:
-   - Frontend: http://localhost:3000
-   - Backend API: http://localhost:8000
-   
-5. **Default credentials** (after creating first user):
-   - You'll need to sign up first
-   - Or use: staff@titanium.com / Staff@1234 (if migrated from Supabase)
+4. **Start the app**:
+   ```bash
+   npm run dev
+   ```
+
+5. **Access the application**:
+   - App: http://localhost:3000
 
 ## Getting Started
 
-First, ensure the PHP backend is running (see Quick Start above), then run the Next.js development server:
+Run the Next.js development server:
 
 ```bash
 npm run dev
@@ -94,13 +88,22 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
+## Authentication (OTP)
+
+- Login credentials are verified first.
+- A 4-digit OTP is sent to the configured email using Nodemailer.
+- OTP validity is 12 hours.
+- Users can resend OTP from the login screen.
+- When a new OTP is sent, previous active OTP sessions are invalidated.
+- If OTP is expired, the UI/API shows `OTP expired`.
+
 ## 📁 Project Structure
 
 ```
-titanium/
+Ekdant-Admin/
 ├── app/                    # Next.js app directory
 │   ├── admin/             # Admin pages (inventory, patients, prescriptions, etc.)
-│   ├── api/               # Next.js API routes (for image uploads, etc.)
+│   ├── api/               # Next.js API routes (pdf + auth OTP)
 │   └── auth/              # Authentication pages
 ├── components/            # React components
 ├── services/              # API service layer
@@ -109,88 +112,45 @@ titanium/
 │   ├── prescription.ts    # Prescription services
 │   ├── bills.ts          # Billing services
 │   └── medicine.ts       # Medicine/inventory
-├── php-backend/          # PHP Backend ⭐ NEW
-│   ├── api/              # API endpoints
-│   │   ├── auth.php      # Authentication
-│   │   ├── patients.php  # Patient CRUD
-│   │   ├── prescriptions.php
-│   │   ├── bills.php
-│   │   └── medicines.php
-│   ├── config/           # Configuration
-│   │   ├── database.php  # DB connection
-│   │   ├── cors.php      # CORS headers
-│   │   └── helpers.php   # Helper functions
-│   └── database/         # Database files
-│       └── schema.sql    # MySQL schema
+├── convex/               # Convex schema/functions
 ├── lib/                  # Utilities
-│   └── apiClient.ts      # HTTP client for PHP API
+│   └── apiClient.ts      # Generic API utilities
 └── .env.local           # Frontend environment variables
-```
-
-## 🔧 Configuration
-
-### Frontend (.env.local)
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8000/api
-```
-
-### Backend (php-backend/.env)
-```env
-DB_HOST=localhost
-DB_NAME=titanium_db
-DB_USER=root
-DB_PASSWORD=your_password
 ```
 
 ## 📡 API Endpoints
 
-See the [PHP Backend README](php-backend/README.md) for complete API documentation.
-
 ### Quick Reference
-- **Auth**: `/api/auth.php?action={signup|signin|signout|current-user}`
-- **Patients**: `/api/patients.php`
-- **Prescriptions**: `/api/prescriptions.php` 
-- **Bills**: `/api/bills.php`
-- **Medicines**: `/api/medicines.php`
+- **OTP Request**: `POST /api/auth/request-otp`
+- **OTP Verify**: `POST /api/auth/verify-otp`
+- **Generate Bill PDF**: `POST /api/generate-bill`
+- **Generate Prescription PDF**: `POST /api/generate-prescription`
 
 ## 🗄️ Database Schema
 
-- **users** - User authentication
+- **users** - User authentication records
+- **auth_otps** - OTP sessions for login
 - **patients** - Patient records  
 - **prescriptions** - Prescription data with teeth chart (JSON)
 - **bills** - Billing with items (JSON)
 - **medicines** - Inventory management
 - **reference_counter** - Auto-incrementing reference numbers
 
-## 📚 Migration from Supabase
+## 📚 Notes
 
-**IMPORTANT**: This project has been migrated from Supabase to PHP + MySQL.
-
-See [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) for detailed migration instructions.
-
-## 📚 Migration from Supabase
-
-**IMPORTANT**: This project has been migrated from Supabase to PHP + MySQL.
-
-See [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) for detailed migration instructions.
+- This repository currently uses Convex for data storage and backend function execution.
+- If SMTP variables are missing, OTP email delivery will fail with `Missing SMTP_USER or SMTP_PASS for OTP email delivery`.
 
 ## 🚢 Deployment
-
-### Backend (PHP)
-- Use Apache/Nginx with PHP-FPM
-- Enable HTTPS
-- Update CORS settings in `php-backend/config/cors.php`
-- Use environment variables for secrets
 
 ### Frontend (Next.js)
 - Build: `npm run build`
 - Deploy to Vercel, Netlify, or custom server
-- Update `NEXT_PUBLIC_API_URL` to production API
+- Set production Convex and SMTP environment variables
 
 ### Database
-- Use managed MySQL (AWS RDS, Google Cloud SQL)
-- Enable SSL connections
-- Regular backups
+- Use Convex production deployment
+- Keep secrets in your host's environment manager
 
 ## Learn More
 
@@ -201,14 +161,14 @@ To learn more about Next.js, take a look at the following resources:
 - [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
 - [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You📝 Development Scripts
+## 📝 Development Scripts
 
-- `setup.bat` - Initial setup (database, env files)
-- `start-all.bat` - Start both frontend and backend
-- `start-backend.bat` - Start PHP server only
-- `start-frontend.bat` - Start Next.js only
+- `npm run dev` - Start Next.js development server
+- `npm run build` - Build production bundle
+- `npm run start` - Start production server
+- `npx convex dev --once` - Push Convex schema/functions once
 
-##  can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+You can check out the [Next.js GitHub repository](https://github.com/vercel/next.js) for more examples and updates.
 
 ## Deploy on Vercel
 
@@ -223,7 +183,7 @@ The application uses a client-side image storage system that supports multiple s
 
 1. **Primary Storage**: IndexedDB (for modern browsers)
 2. **Fallback Storage**: localStorage (for compatibility)
-3. **Database Storage**: Only prescription metadata stored in Supabase (images are NOT stored in database)
+3. **Database Storage**: Only prescription metadata stored in Convex (images are NOT stored in database)
 
 ### Key Features
 - **Client-side only**: Images are stored locally on the user's device

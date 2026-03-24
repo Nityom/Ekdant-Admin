@@ -7,6 +7,19 @@ export default defineSchema({
     password_hash: v.string(),
   }).index("by_email", ["email"]),
 
+  auth_otps: defineTable({
+    login_email: v.string(),
+    delivery_email: v.string(),
+    otp_hash: v.string(),
+    expires_at: v.number(),
+    created_at: v.number(),
+    used: v.boolean(),
+    used_at: v.optional(v.number()),
+    attempts: v.number(),
+  })
+    .index("by_login_email", ["login_email"])
+    .index("by_expires_at", ["expires_at"]),
+
   patients: defineTable({
     reference_number: v.string(),
     name: v.string(),

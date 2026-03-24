@@ -1,107 +1,60 @@
-═══════════════════════════════════════════════════════
-  TITANIUM DENTAL CLINIC - QUICK START GUIDE
-═══════════════════════════════════════════════════════
+=======================================================
+  EKDANT DENTAL CLINIC - QUICK START GUIDE
+=======================================================
 
-📋 Prerequisites Check:
-   □ Node.js installed? (check: node --version)
-   □ PHP installed? (check: php --version)
-   □ MySQL installed? (check: mysql --version)
-   □ npm dependencies installed? (run: npm install)
+Prerequisites:
+  - Node.js 18+
+  - npm
+  - Convex deployment
+  - Gmail app password (for OTP emails)
 
-⚡ QUICKEST WAY TO START:
+Quick Start:
 
-1. Install PHP (if not installed):
-   → Quick: choco install php (if you have Chocolatey)
-   → Manual: See INSTALL_PHP.md for detailed instructions
-   → Download: https://windows.php.net/download/
+1) Install dependencies
+   npm install
 
-2. Install MySQL (if not installed):
-   → https://dev.mysql.com/downloads/installer/
-   → Remember your root password!
+2) Configure .env.local
+   Add/verify these values:
 
-3. Run automated setup:
-   → Double-click setup.bat
-   → Enter MySQL password when asked
-   
-4. Configure password:
-   → Edit php-backend\.env
-   → Set DB_PASSWORD=your_mysql_password
+   NEXT_PUBLIC_CONVEX_SITE_URL=https://your-deployment.convex.site
+   NEXT_PUBLIC_CONVEX_URL=https://your-deployment.convex.cloud
+   CONVEX_DEPLOYMENT=dev:your-deployment
 
-5. Start everything:
-   → Double-click start-all.bat
-   
-6. Open browser:
-   → http://localhost:3000
-   → Sign up for a new account
+  AUTH_LOGIN_EMAIL=drlalit@ekdantdentalclinics.com
+   AUTH_LOGIN_PASSWORD=Admin@123
+  AUTH_OTP_TO_EMAIL=drlalit@ekdantdentalclinics.com
 
-═══════════════════════════════════════════════════════
+   SMTP_HOST=smtp.gmail.com
+   SMTP_PORT=587
+   SMTP_SECURE=false
+   SMTP_USER=your-gmail@gmail.com
+   SMTP_PASS=your-16-char-gmail-app-password
+   SMTP_FROM=your-gmail@gmail.com
 
-🎯 MANUAL STEPS (if automated setup fails):
+3) Push Convex schema/functions
+   npx convex dev --once
 
-Step 1: Create Database
-   mysql -u root -p
-   CREATE DATABASE titanium_db;
-   exit;
-
-Step 2: Import Schema
-   cd php-backend
-   mysql -u root -p titanium_db < database\schema.sql
-
-Step 3: Configure Environment
-   - Copy php-backend\.env.example to php-backend\.env
-   - Edit DB_PASSWORD in php-backend\.env
-   - Copy .env.local.example to .env.local
-
-Step 4: Start Backend (in terminal 1)
-   cd php-backend
-   php -S localhost:8000 -t .
-
-Step 5: Start Frontend (in terminal 2)
+4) Start app
    npm run dev
 
-Step 6: Visit http://localhost:3000
+5) Open
+   http://localhost:3000
 
-═══════════════════════════════════════════════════════
+OTP Login Notes:
+  - OTP is 4 digits
+  - OTP validity is 12 hours
+  - Resend OTP is available on login screen
+  - If SMTP_USER or SMTP_PASS is missing, OTP email sending fails
 
-📁 Important Files:
-   ✓ php-backend\.env        → Database credentials
-   ✓ .env.local              → Frontend API URL
-   ✓ setup.bat               → Automated setup
-   ✓ start-all.bat           → Start both servers
-   ✓ SETUP_INSTRUCTIONS.md   → Detailed instructions
+Troubleshooting:
+  - "Missing SMTP_USER or SMTP_PASS": set both values in .env.local and restart dev server
+  - Convex errors: run `npx convex dev --once` again
+  - Port in use: stop existing process on port 3000 or run on a different port
 
-🔧 Troubleshooting:
-   Error: "PHP not found"
-   → Install PHP (see INSTALL_PHP.md)
-   → Quick: choco install php
+Useful Commands:
+  - npm run dev
+  - npm run build
+  - npm run start
+  - npx convex dev --once
 
-   Error: "MySQL command not found"
-   → Add MySQL bin folder to Windows PATH
-
-   Error: "Access denied"
-   → Check password in php-backend\.env
-
-   Error: "Port already in use"
-   → Change port in start-backend.bat
-   → Update NEXT_PUBLIC_API_URL in .env.local
-
-   Error: "CORS error"
-   → Verify both servers are running
-   → Check php-backend\config\cors.php
-
-═══════════════════════════════════════════════════════
-
-📚 Full Documentation:
-   → SETUP_INSTRUCTIONS.md  (detailed setup)
-   → MIGRATION_GUIDE.md     (from Supabase)
-   → README.md              (project overview)
-   → php-backend\README.md  (API documentation)
-
-═══════════════════════════════════════════════════════
-
-✅ You're ready when you see:
-   ✓ PHP Backend: http://localhost:8000 (shows API info)
-   ✓ Next.js Frontend: http://localhost:3000 (shows app)
-   ✓ No errors in both terminal windows
-
-Happy coding! 🎉
+For full details, see README.md
