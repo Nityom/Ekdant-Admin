@@ -186,6 +186,9 @@ export async function POST(request: NextRequest) {
       expires_at: expiresAt,
     })) as { sessionId: string; expiresAt: number; otpCode: string; isExisting: boolean };
 
+    // Use the code from session (existing or newly created)
+    const finalOtpCode = session.otpCode || otpCode;
+
     const transporter = createMailer();
     const senderEmail = process.env.SMTP_FROM || process.env.SMTP_USER || "";
 
@@ -193,8 +196,8 @@ export async function POST(request: NextRequest) {
       from: senderEmail,
       to: deliveryEmail,
       subject: "Ekdant Admin Login OTP",
-      text: `Your 4-digit OTP is ${session.otpCode}. It is valid for 12 hours.`,
-      html: buildOtpEmailHtml(session.otpCode, deliveryEmail),
+      text: `Your 4-digit OTP is ${finalOtpCode}. It is valid for 12 hours.`,
+      html: buildOtpEmailHtml(finalOtpCode, deliveryEmail),
     });
 
     return NextResponse.json({
