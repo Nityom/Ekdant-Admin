@@ -51,15 +51,26 @@ export const getOrCreateOtpSession = mutation({
       .collect();
 
     for (const session of existing) {
-      // Only reuse sessions that have otp_code field (new records)
-      if (!session.used && session.expires_at > now && session.otp_code) {
-        // Found active, non-expired OTP with code - return it
+      // Reuse only sessions that have otp_code and haven't been used
+      if (session.otp_code && !session.used && session.expires_at > now) {
+        // Update the hash just in case (for safety)
+        await ctx.db.patch(session._id, {
+          otp_hash: args.otp_hash,
+          expires_at: args.expires_at,
+        });
         return {
           sessionId: session._id,
-          expiresAt: session.expires_at,
+          expiresAt: args.expires_at,
           otpCode: session.otp_code,
           isExisting: true,
         };
+      }
+      // Mark other active sessions as used (so they won't interfere)
+      if (!session.used && session.expires_at > now) {
+        await ctx.db.patch(session._id, {
+          used: true,
+          used_at: now,
+        });
       }
     }
 
