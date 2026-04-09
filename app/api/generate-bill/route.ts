@@ -297,11 +297,11 @@ function generatePDF(doc: jsPDF, billData: BillData): void {
 
     
   doc.setFontSize(8);
-  centerText('Kalambagh road, Lenin Chowk, Muzaffarpur', yPos, 8);
+  centerText('Andawa Tiraha, Sahson Road, beside Bikaner Mishthan Bhandar, Andawa,', yPos, 8);
   yPos += 4;
-  centerText('Bihar, India - 842001', yPos, 8);
+  centerText('Jhusi, Prayagraj - 211019', yPos, 8);
   yPos += 4;
-  centerText('Phone: +91 9288050250\n | Email:  ksdentalclinics@gmail.com@gmail.com', yPos, 8);
+  centerText('Phone: 09415252552 | Email: drlalit@ekdantdentalclinics.com', yPos, 8);
   yPos += 8;
 
   // Add invoice header
